@@ -6,7 +6,8 @@ import ply.lex as lex
 reserved = {
     'if' : 'IF',
     'then' : 'THEN',
-    'else' : 'ELSE'
+    'else' : 'ELSE',
+    'while' : 'WHILE'
 }
 
 # List of token names.   This is always required
@@ -19,6 +20,7 @@ tokens = [
     'GT',
     'ID',
     'NUMBER',
+    'STRING',
     'RELOP'
 ] + list(reserved.values())
 
@@ -32,7 +34,7 @@ def t_LE(t):
     return t
 
 def t_NE(t):
-    r'<>'
+    r'!='
     t.type = 'RELOP'
     t.value = 'NE'
     return t
@@ -56,13 +58,13 @@ def t_GT(t):
     return t
 
 def t_EQ(t):
-    r'='
+    r'=='
     t.type = 'RELOP'
     t.value = 'EQ'
     return t
 
 def t_ID(t):
-    r'[a-zA-Z][a-zA-Z0-9]*'
+    r'[\_]*[a-zA-Z][a-zA-Z0-9-\_]*'
     t.type = reserved.get(t.value,'ID') # Check for reserved words
     return t
 
@@ -70,6 +72,12 @@ def t_ID(t):
 def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
+    return t
+
+def t_STRING(t):
+    r'[\"][a-zA-Z0-9-\_\"\\]*[\"]'
+    t.type = 'STRING'
+    t.value = str(t.value)
     return t
 
 # Error handling rule
