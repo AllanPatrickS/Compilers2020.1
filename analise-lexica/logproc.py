@@ -11,16 +11,16 @@ tokens = [
 ] 
 
 def t_TIMESTAMP(t):
-    # Regular expression for TIMESTAMP
+    r'<'
     return t
 
 def t_PROC(t):
-    # Regular expression for PROC
+    r'<'
     t.value = t.value[1:len(t.value) - 1]
     return t
 
 def t_MESSAGE(t):
-    # Regular expression for MESSAGE
+    r'<'
     t.value = t.value[:len(t.value) - 1]
     return t
 
