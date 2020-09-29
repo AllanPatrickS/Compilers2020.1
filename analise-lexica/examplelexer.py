@@ -64,7 +64,7 @@ def t_EQ(t):
     return t
 
 def t_ID(t):
-    r'[\_]*[a-zA-Z][a-zA-Z0-9-\_]*'
+    r'[\_]*[a-zA-Z][a-zA-Z0-9\_]*'
     t.type = reserved.get(t.value,'ID') # Check for reserved words
     return t
 
@@ -75,7 +75,7 @@ def t_NUMBER(t):
     return t
 
 def t_STRING(t):
-    r'[\"][a-zA-Z0-9-\_\"\\]*[\"]'
+    r'[\"][a-zA-Z0-9\_\"\\]*[\"]'
     t.type = 'STRING'
     t.value = str(t.value)
     return t
