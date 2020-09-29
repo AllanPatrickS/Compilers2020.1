@@ -11,16 +11,16 @@ tokens = [
 ] 
 
 def t_TIMESTAMP(t):
-    r'<'
+    r'[0][a-zA-Z0-9-\_\"\\]*[\"]'
     return t
 
 def t_PROC(t):
-    r'<'
+    r'[\"][a-zA-Z0-9-\_\"\\]*[\"]'
     t.value = t.value[1:len(t.value) - 1]
     return t
 
 def t_MESSAGE(t):
-    r'<'
+    r'[\"][a-zA-Z0-9-\_\"\\]*[\"]'
     t.value = t.value[:len(t.value) - 1]
     return t
 
