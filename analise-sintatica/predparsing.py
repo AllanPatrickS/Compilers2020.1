@@ -48,6 +48,9 @@ class Grammar:
         self.pred_parsing_trace = []
         self.pp = pprint.PrettyPrinter()
         self.first_computed = False
+        self.follow_computed = False
+        # No arquivo slr.py existe uma chamada a esta variavel contudo
+        # ela não existia então existiu a necessidade de criar a mesma.
 
     def getSymbols(self):
         symbols = self.non_terminals.copy()
@@ -133,6 +136,10 @@ class Grammar:
                     break
                 # We must first calculate FIRST(y_1) before
                 # use it.
+                # Ao executar esta função dentro do slr.py 
+                # esta função acabava entrando em loop infinito.
+                if y_1 == s:
+                    continue
                 if self.first_tab[y_1] == set():
                     self.first(y_1)
                 # FIRST(y_1) \subseteq FIRST(s)
@@ -237,6 +244,9 @@ class Grammar:
                 break
             ### Do your magic!
             pass
+        # Seguindo o mesmo principio do first_computed após
+        # a execução da função setei o seu valor para true.
+        self.follow_computed = True
 
 
     def follow(self, s):
