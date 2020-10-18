@@ -1,0 +1,152 @@
+@@grammar::LIST
+
+
+start
+    =
+    | list_exp $
+    | expression $
+    ;
+
+list_exp
+    =
+
+    # Do your magic here!
+
+    ;
+
+bool_exp
+    =
+    | conjunction
+    | disjunction
+    | gt
+    | equal
+    | negation
+    | '(' @:bool_exp ')'
+    | tt
+    | ff
+    ;
+
+tt
+    =
+    'True'
+    ;
+
+ff
+    =
+    'False'
+    ;
+
+conjunction
+    =
+    left:bool_exp 'and' ~ right:bool_exp
+    ;
+
+disjunction
+    =
+    left:bool_exp 'or' ~ right:bool_exp
+    ;
+
+negation
+    =
+    'not' ~ be:bool_exp
+    ;
+
+gt
+    =
+    | gt_left_id
+    | gt_right_id
+    | gt_all_exp
+    ;
+
+gt_left_id
+    =
+    id:id '>' ~ right:expression
+    ;
+
+gt_right_id
+    =
+    left:expression '>' id:id
+    ;
+    
+gt_all_exp
+    =
+    left:expression '>' right:expression
+    ;
+
+equal
+    =
+    | equal_left_id_exp
+    | equal_right_id_exp
+    | equal_all_exp
+    ;
+
+equal_left_id_exp
+    =
+    id:id '==' right:expression
+    ;
+    
+equal_right_id_exp
+    =
+    left:expression '==' id:id
+    ;
+
+equal_all_exp
+    =
+    left:expression '==' right:expression
+    ;
+
+id
+    =
+    /[a-zA-z]+/
+    ;
+
+expression
+    =
+    | addition
+    | subtraction
+    | term
+    ;
+
+
+addition
+    =
+    left:expression '+' ~ right:term
+    ;
+
+subtraction
+    =
+    left:expression '-' ~ right:term
+    ;
+
+
+term
+    =
+    | multiplication
+    | division
+    | factor
+    ;
+
+
+multiplication
+    =
+    left:term '*' ~ right:factor
+    ;
+
+
+division
+    =
+    left:term '/' ~ right:factor
+    ;
+
+
+factor
+    =
+    | '(' ~ @:expression ')'
+    | number
+    ;
+
+
+number
+    =
+    /\d+/
+    ;
