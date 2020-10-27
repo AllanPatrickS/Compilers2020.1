@@ -9,9 +9,7 @@ start
 
 list_exp
     =
-
-    # Do your magic here!
-
+    '[' v:id 'in' '[' ','%{l:expression}+ ']' '|' e:bool_exp ']'
     ;
 
 bool_exp

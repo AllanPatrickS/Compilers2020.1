@@ -37,7 +37,8 @@ class ListCompSemantics(object):
 
     def gt_left_id(self, ast):
         def f(x):
-            if type(ast.right) == int:
+            right_t = type(ast.right)
+            if right_t == int:
                 r = ast.right
             else:
                 r = ast.right(x)
@@ -45,24 +46,73 @@ class ListCompSemantics(object):
         return f
         
     def gt_right_id(self, ast):
-        pass
-
+        # Do your magic here !
+        def f(x):
+            left_t = type(ast.left)
+            if left_t == int:
+                l = ast.left
+            else:
+                l = ast.left(x)
+            return l > x
+        return f
         # Do your magic here !
         
     def gt_all_exp(self, ast):
-        pass
+        # Do your magic here !
+        def f(x):
+            left_t = type(ast.left)
+            if left_t == int:
+                l = ast.left
+            else:
+                l = ast.left(x)
+            right_t = type(ast.right)
+            if right_t == int:
+                r = ast.right
+            else:
+                r = ast.right(x)
+            return l > r
+        return f
         # Do your magic here !
         
     def equal_left_id_exp(self, ast):
-        pass
+        # Do your magic here !
+        def f(x):
+            right_t = type(ast.right)
+            if right_t == int:
+                r = ast.right
+            else:
+                r = ast.right(x)
+            return x == r
+        return f
         # Do your magic here !
         
     def equal_right_id_exp(self, ast):
-        pass
+        # Do your magic here !    
+        def f(x):
+            left_t = type(ast.left)
+            if left_t == int:
+                l = ast.left
+            else:
+                l = ast.left(x)
+            return l == x
+        return f
         # Do your magic here !    
     
     def equal_all_exp(self, ast):
-        pass
+        # Do your magic here !
+        def f(x):
+            left_t = type(ast.left)
+            if left_t == int:
+                l = ast.left
+            else:
+                l = ast.left(x)
+            right_t = type(ast.right)
+            if right_t == int:
+                r = ast.right
+            else:
+                r = ast.right(x)
+            return l == r
+        return f
         # Do your magic here !
         
     def list_exp(self, ast):
