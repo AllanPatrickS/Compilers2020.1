@@ -24,6 +24,7 @@
 @@keyword :: '{' '}'
 @@keyword :: 'print'
 @@keyword :: 'concat'
+@@keyword :: 'append'
 
 start = [ds:decSeq] [cs:cmd_seq] $ ;
 
