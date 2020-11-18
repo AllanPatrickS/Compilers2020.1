@@ -17,7 +17,27 @@ class Impiler(object):
     def un_exp(self, ast):
         if ast.op == "not":
             return pi.Not(ast.e)
-        
+        if ast.op == "len":
+            return pi.ArrSize(ast.e)
+
+    def arr_int(self, ast):
+        if isinstance(ast, tuple):
+            return pi.ArrInt([])
+        elif isinstance(ast.e, list):
+            return pi.ArrInt(ast.e)
+        return pi.ArrInt([ast.e])
+
+    def arr(self, ast):
+        if ast.op == None:
+            return pi.ArrIndex(ast.idn, ast.e)
+        elif ast.op == 'append':
+            return pi.ArrAppend(ast.e1, ast.e2)
+        elif ast.op == 'concat':
+            if isinstance(ast.e1, pi.Id):
+                return pi.Concat(ast.e1, ast.e2)
+            else:
+                return pi.Concat(ast.e2, ast.e1)
+
     def bin_exp(self, ast):
         if ast.op == "+":
             return pi.Sum(ast.e1, ast.e2)
@@ -46,6 +66,8 @@ class Impiler(object):
         return pi.Boo(bool(ast))
 
     def assign(self, ast):
+        if ast.idx != None:
+            return pi.ArrAssign(ast.idn, ast.idx, ast.e)
         return pi.Assign(ast.idn, ast.e)
 
     def print(self, ast):
@@ -135,8 +157,6 @@ class Impiler(object):
         if f == []:
             return pi.Abs(pi.Formals(), body)
         else:
-            # Tatsu roduces list of identifiers and commas from
-            # formals = ','%{ identifiers }
             formals = [e for e in f if e != ',']
             return pi.Abs(formals, body)
 

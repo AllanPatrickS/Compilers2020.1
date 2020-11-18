@@ -23,16 +23,21 @@
 @@keyword :: 'skip'
 @@keyword :: '{' '}'
 @@keyword :: 'print'
+@@keyword :: 'concat'
 
 start = [ds:decSeq] [cs:cmd_seq] $ ;
 
-exp = paren_exp | bin_exp | un_exp | @:atom ;
+exp = arr | arr_int | bin_exp | un_exp  | paren_exp | @:atom ;
+
+arr = idn:identifier"["e:exp"]" | op:"concat" "(" e1:exp "," e2:exp  ")" | op:"append" "(" e1:exp "," e2:exp ")";
+
+arr_int = "[" ','%{e:exp}* "]" ;
 
 paren_exp = "(" e:exp ")" ;
 
-bin_exp = e1:exp op:binop e2:exp ;
+bin_exp = l:arr_int op:binop e:exp | e1:exp op:binop e2:exp ;
 
-un_exp = op:"not" e:exp ;
+un_exp = op:"len" "(" e:exp ")" | op:"not" e:exp ;
 
 atom = @:num_atom  | @:truth_atom | @:id_atom ;
 
@@ -42,7 +47,7 @@ truth_atom = truth ;
 
 id_atom = identifier ;
 
-binop = "and"| "or" | "==" | "<=" | ">=" | "<" | ">"  | "+" | "-" | "*" | "/"  ; 
+binop = "and"| "or" | "==" | "<=" | ">=" | "<" | ">"  | "+" | "-" | "*" | "/"  ;
 
 truth = 'True' | 'False' ;
 
@@ -60,11 +65,11 @@ atom_cmd = cond | loop | assign | print | call | skip ;
 
 skip = "skip" ;
 
-assign = idn:identifier op:":=" e:exp ;
+assign =  idn:identifier op:":=" e:exp | idn:identifier"["idx:exp"]" op:":=" e:exp ;
 
 print = op:"print" e:exp ;
 
-cond = op:"if" t:paren_exp b1:blk ["else" b2:blk] ; 
+cond = op:"if" t:paren_exp b1:blk ["else" b2:blk] ;
 
 loop = op:"while" t:paren_exp b:blk ;
 

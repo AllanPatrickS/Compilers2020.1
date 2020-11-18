@@ -1,0 +1,54 @@
+var first_arr = [3, 2, 1], second_arr = [9, 8, 7, 6];
+var output_arr = [], bubble_arr = [];
+var pos = 0, elements = 0, i = 0, first_pos = 0, second_pos = 0;
+var ordered = 0;
+
+print(first_arr);
+print(second_arr);
+print(output_arr);
+
+print(first_arr[pos]);
+print(second_arr[1]);
+
+print(len(output_arr));
+print(len(second_arr));
+print(len(first_arr));
+
+output_arr := append(first_arr, second_arr);
+print(output_arr);
+
+output_arr := append([5], first_arr);
+print(output_arr);
+
+output_arr := append(second_arr, [7,12]);
+print(output_arr);
+
+output_arr := concat(first_arr, 23);
+print(output_arr);
+
+output_arr := concat(23, second_arr);
+print(output_arr);
+
+elements := len(first_arr) - 1;
+
+print(first_arr);
+
+bubble_arr := first_arr;
+
+while (ordered == 0) {
+    i := 0;
+    ordered := 1;
+    while (i < elements) {
+        first_pos := bubble_arr[i];
+        second_pos := bubble_arr[i+1];
+        if (first_pos > second_pos) {
+            pos := i+1;
+            bubble_arr[pos] := first_pos;
+            bubble_arr[i] := second_pos;
+            ordered := 0
+        };
+        i := i + 1
+    }
+};
+
+print(bubble_arr)
