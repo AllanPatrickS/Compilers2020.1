@@ -20,13 +20,6 @@ class Impiler(object):
         if ast.op == "len":
             return pi.ArrSize(ast.e)
 
-    def arr_int(self, ast):
-        if isinstance(ast, tuple):
-            return pi.ArrInt([])
-        elif isinstance(ast.e, list):
-            return pi.ArrInt(ast.e)
-        return pi.ArrInt([ast.e])
-
     def arr(self, ast):
         if ast.op == None:
             return pi.ArrIndex(ast.idn, ast.e)
@@ -34,9 +27,15 @@ class Impiler(object):
             return pi.ArrAppend(ast.e1, ast.e2)
         elif ast.op == 'concat':
             if isinstance(ast.e1, pi.Id):
-                return pi.Concat(ast.e1, ast.e2)
+                return pi.ArrConcat(ast.e1, ast.e2)
             else:
-                return pi.Concat(ast.e2, ast.e1)
+                return pi.ArrConcat(ast.e2, ast.e1)
+        elif ast.op == '[':
+            if isinstance(ast, tuple):
+                return pi.ArrInt([])
+            elif isinstance(ast.e, list):
+                return pi.ArrInt(ast.e)
+            return pi.ArrInt([ast.e])
 
     def bin_exp(self, ast):
         if ast.op == "+":

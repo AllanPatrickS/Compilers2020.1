@@ -172,7 +172,7 @@ class ArrIndex(Exp):
             raise IllFormed(self, idn)
 
 
-class Concat(Exp):
+class ArrConcat(Exp):
     def __init__(self, l, e):
         if isinstance(l, Exp) or isinstance(l, ArrInt):
             if isinstance(e, Exp):
@@ -587,14 +587,14 @@ class ExpPiAut(PiAutomaton):
         l2 = self.popVal()
         self.pushVal(l1 + l2)
 
-    def __evalConcat(self, e):
+    def __evalArrConcat(self, e):
         l = e.operand(0)
         v = e.operand(1)
         self.pushCnt(ExpKW.CONCAT)
         self.pushCnt(l)
         self.pushCnt(v)
 
-    def __evalConcatKW(self):
+    def __evalArrConcatKW(self):
         l = self.popVal()
         e = self.popVal()
         nl = l.copy()
@@ -712,10 +712,10 @@ class ExpPiAut(PiAutomaton):
             self.__evalArrAppend(e)
         elif e == ExpKW.APPEND:
             self.__evalArrAppendKW()
-        elif isinstance(e, Concat):
-            self.__evalConcat(e)
+        elif isinstance(e, ArrConcat):
+            self.__evalArrConcat(e)
         elif e == ExpKW.CONCAT:
-            self.__evalConcatKW()
+            self.__evalArrConcatKW()
         elif isinstance(e, ArrAssign):
             self.__evalArrAssign(e)
         elif e == ExpKW.LASG:
