@@ -8,7 +8,6 @@ from termcolor import colored
 
 COLORED = False
 
-
 class IllFormed(Exception):
     def __str__(self):
         return "Ill formed Π IR AST: " + colored(self.args, 'red')
@@ -146,11 +145,11 @@ class Exp(Statement):
 
 
 class ArrInt(Statement):
-    def __init__(self, l):
-        if isinstance(l, list):
-            Statement.__init__(self, l)
+    def __init__(self, arr):
+        if isinstance(arr, list):
+            Statement.__init__(self, arr)
         else:
-            raise IllFormed(self, l)
+            raise IllFormed(self, arr)
 
 
 class ArrSize(Exp):
@@ -162,25 +161,25 @@ class ArrSize(Exp):
 
 
 class ArrIndex(Exp):
-    def __init__(self, idn, e):
-        if isinstance(idn, Id):
+    def __init__(self, id, e):
+        if isinstance(id, Id):
             if isinstance(e, Exp):
-                Exp.__init__(self, idn, e)
+                Exp.__init__(self, id, e)
             else:
                 raise IllFormed(self, e)
         else:
-            raise IllFormed(self, idn)
+            raise IllFormed(self, id)
 
 
 class ArrConcat(Exp):
-    def __init__(self, l, e):
-        if isinstance(l, Exp) or isinstance(l, ArrInt):
+    def __init__(self, arr, e):
+        if isinstance(arr, Exp) or isinstance(arr, ArrInt):
             if isinstance(e, Exp):
-                Exp.__init__(self, l, e)
+                Exp.__init__(self, arr, e)
             else:
                 raise IllFormed(self, e)
         else:
-            raise IllFormed(self, l)
+            raise IllFormed(self, arr)
 
 
 class ArrAppend(Exp):
@@ -373,11 +372,10 @@ class ExpKW():
     AND = "#AND"
     OR = "#OR"
     NOT = "#NOT"
-    IDX = "#IDX"
+    ID = "#ID"
     APPEND = "#APPEND"
-    CONCAT = "CONCAT"
-    LASG = "LASG"
-    SIZE = "SIZE"
+    CONCAT = "#CONCAT"
+    SIZE = "#SIZE"
 
 
 class ExpPiAut(PiAutomaton):
@@ -572,81 +570,55 @@ class ExpPiAut(PiAutomaton):
         self.pushVal(not v)
 
     def __evalArrInt(self, e):
-        f = e.operand(0)
-        self.pushVal(f)
+        i = e.operand(0)
+        self.pushVal(i)
 
     def __evalArrAppend(self, e):
-        l1 = e.operand(0)
-        l2 = e.operand(1)
+        arr1 = e.operand(0)
+        arr2 = e.operand(1)
         self.pushCnt(ExpKW.APPEND)
-        self.pushCnt(l1)
-        self.pushCnt(l2)
+        self.pushCnt(arr1)
+        self.pushCnt(arr2)
 
     def __evalArrAppendKW(self):
-        l1 = self.popVal()
-        l2 = self.popVal()
-        self.pushVal(l1 + l2)
+        arr1 = self.popVal()
+        arr2 = self.popVal()
+        self.pushVal(arr1 + arr2)
 
     def __evalArrConcat(self, e):
-        l = e.operand(0)
-        v = e.operand(1)
+        arr = e.operand(0)
+        i = e.operand(1)
         self.pushCnt(ExpKW.CONCAT)
-        self.pushCnt(l)
-        self.pushCnt(v)
+        self.pushCnt(arr)
+        self.pushCnt(i)
 
     def __evalArrConcatKW(self):
-        l = self.popVal()
-        e = self.popVal()
-        nl = l.copy()
-        nl.append(Num(e))
-        self.pushVal(nl)
+        arr = self.popVal()
+        i = self.popVal()
+        copyarr = arr.copy()
+        copyarr.append(Num(i))
+        self.pushVal(copyarr)
 
     def __evalArrIndex(self, e):
-        idn = e.operand(0)
-        idx = e.operand(1)
-        self.pushCnt(ExpKW.IDX)
-        self.pushCnt(idn)
-        self.pushCnt(idx)
+        id = e.operand(0)
+        pos = e.operand(1)
+        self.pushCnt(ExpKW.ID)
+        self.pushCnt(id)
+        self.pushCnt(pos)
 
     def __evalArrIndexKW(self):
-        l = self.popVal()
-        idx = self.popVal()
-        self.pushVal(l[idx])
+        arr = self.popVal()
+        pos = self.popVal()
+        self.pushVal(arr[pos])
 
     def __evalArrSize(self, e):
-        l = e.operand(0)
+        arr = e.operand(0)
         self.pushCnt(ExpKW.SIZE)
-        self.pushCnt(l)
+        self.pushCnt(arr)
 
     def __evalArrSizeKW(self):
-        l = self.popVal()
-        self.pushVal(len(l))
-
-    def __evalArrAssign(self, c):
-        idn = c.operand(0)
-        idx = c.operand(1)
-        e = c.operand(2)
-
-        self.pushVal(idn.id())
-        self.pushVal(idx)
-        self.pushCnt(ExpKW.LASG)
-        self.pushCnt(e)
-
-    def __evalArrAssignKW(self):
-        v = self.popVal()
-        idx = self.popVal()
-        idn = self.popVal()
-        l = self.getBindable(idn)
-        sto = self.sto()
-        if isinstance(idx, Id):
-            aux = self.getBindable(idx.id())
-            idx = sto[aux]
-        nl = sto[l]
-        if isinstance(v, Num):
-            nl[idx] = v
-        else:
-            nl[idx] = Num(v)
-        self.updateStore(l, nl)
+        arr = self.popVal()
+        self.pushVal(len(arr))
 
     def eval(self):
         e = self.popCnt()
@@ -706,7 +678,7 @@ class ExpPiAut(PiAutomaton):
             self.__evalArrInt(e)
         elif isinstance(e, ArrIndex):
             self.__evalArrIndex(e)
-        elif e == ExpKW.IDX:
+        elif e == ExpKW.ID:
             self.__evalArrIndexKW()
         elif isinstance(e, ArrAppend):
             self.__evalArrAppend(e)
@@ -716,10 +688,6 @@ class ExpPiAut(PiAutomaton):
             self.__evalArrConcat(e)
         elif e == ExpKW.CONCAT:
             self.__evalArrConcatKW()
-        elif isinstance(e, ArrAssign):
-            self.__evalArrAssign(e)
-        elif e == ExpKW.LASG:
-            self.__evalArrAssignKW()
         elif isinstance(e, ArrSize):
             self.__evalArrSize(e)
         elif e == ExpKW.SIZE:
@@ -756,7 +724,7 @@ class Id(ArithExp, BoolExp):
 class Print(Cmd):
 
     def __init__(self, e):
-        if isinstance(e, Exp) or isinstance(e, ArrInt):
+        if isinstance(e, Exp):
             Cmd.__init__(self, e)
         else:
             raise IllFormed(self, e)
@@ -766,24 +734,24 @@ class Print(Cmd):
 
 
 class ArrAssign(Cmd):
-    def __init__(self, idn, idx, e):
-        if isinstance(idn, Id):
-            if isinstance(idx, Exp):
+    def __init__(self, id, pos, e):
+        if isinstance(id, Id):
+            if isinstance(pos, Exp):
                 if isinstance(e, Exp):
-                    Cmd.__init__(self, idn, idx, e)
+                    Cmd.__init__(self, id, pos, e)
                 else:
                     raise IllFormed(self, e)
             else:
-                raise IllFormed(self, idx)
+                raise IllFormed(self, pos)
         else:
-            raise IllFormed(self, idn)
+            raise IllFormed(self, id)
 
 
 class Assign(Cmd):
 
     def __init__(self, i, e):
         if isinstance(i, Id):
-            if isinstance(e, Exp) or isinstance(e, ArrInt):
+            if isinstance(e, Exp):
                 Cmd.__init__(self, i, e)
             else:
                 raise IllFormed(self, e)
@@ -868,6 +836,7 @@ class Sto(dict):
 
 class CmdKW:
     ASSIGN = "#ASSIGN"
+    ARRASSIGN = "#ARRASSIGN"
     LOOP = "#LOOP"
     COND = "#COND"
     PRINT = "#PRINT"
@@ -944,6 +913,31 @@ class CmdPiAut(ExpPiAut):
         l = self.getBindable(i)
         self.updateStore(l, v)
 
+    def __evalArrAssign(self, c):
+        id = c.operand(0)
+        pos = c.operand(1)
+        e = c.operand(2)
+        self.pushVal(id.id())
+        self.pushVal(pos)
+        self.pushCnt(CmdKW.ARRASSIGN)
+        self.pushCnt(e)
+
+    def __evalArrAssignKW(self):
+        v = self.popVal()
+        pos = self.popVal()
+        id = self.popVal()
+        arr = self.getBindable(id)
+        sto = self.sto()
+        if isinstance(pos, Id):
+            aux = self.getBindable(pos.id())
+            pos = sto[aux]
+        copyarr = sto[arr]
+        if isinstance(v, Num):
+            copyarr[pos] = v
+        else:
+            copyarr[pos] = Num(v)
+        self.updateStore(arr, copyarr)
+
     def __evalId(self, i):
         s = self.sto()
         b = self.getBindable(i)
@@ -1001,6 +995,10 @@ class CmdPiAut(ExpPiAut):
             self.__evalAssign(c)
         elif c == CmdKW.ASSIGN:
             self.__evalAssignKW()
+        elif isinstance(c, ArrAssign):
+            self.__evalArrAssign(c)
+        elif c == CmdKW.ARRASSIGN:
+            self.__evalArrAssignKW()
         elif isinstance(c, Nop):
             return
         elif isinstance(c, Id):
@@ -1037,7 +1035,7 @@ class Bind(Dec):
                 i = args[0]
                 e = args[1]
                 if isinstance(i, Id):
-                    if isinstance(e, Exp) or isinstance(e, ArrInt):
+                    if isinstance(e, Exp):
                         Dec.__init__(self, i, e)
                     else:
                         raise IllFormed(self, e)

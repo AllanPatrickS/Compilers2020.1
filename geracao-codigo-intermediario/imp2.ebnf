@@ -25,10 +25,13 @@
 @@keyword :: 'print'
 @@keyword :: 'concat'
 @@keyword :: 'append'
+@@keyword :: 'return'
 
 start = [ds:decSeq] [cs:cmd_seq] $ ;
 
-exp = arr | bin_exp | un_exp  | paren_exp | @:atom ;
+exp = arr | ret_exp | bin_exp | un_exp  | paren_exp | @:atom ;
+
+ret_exp = "return" e:exp ;
 
 arr = op:"[" ','%{e:exp}* "]" | idn:identifier"["e:exp"]" | op:"concat" "(" e1:exp "," e2:exp  ")" | op:"append" "(" e1:exp "," e2:exp ")";
 
