@@ -1,0 +1,22 @@
+var lis = [0, 1];
+var i = 2, fib = 0, first = 0, last = 0, func = 0;
+
+def fibonacci (x) {
+    if (x == 0) {
+        return 0
+    };
+    if (x == 1) {
+        return 1
+    };
+    while (i < x+1) {
+        first := lis[i-1];
+        last := lis[i-2];
+        lis := concat(lis, first + last);
+        i := i + 1
+    };
+    fib := lis[i-1];
+    return fib
+}
+
+func := fibonacci(6);
+print (func)

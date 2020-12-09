@@ -29,9 +29,7 @@
 
 start = [ds:decSeq] [cs:cmd_seq] $ ;
 
-exp = arr | ret_exp | bin_exp | un_exp  | paren_exp | @:atom ;
-
-ret_exp = "return" e:exp ;
+exp = arr | bin_exp | un_exp  | paren_exp | call | @:atom ;
 
 arr = op:"[" ','%{e:exp}* "]" | idn:identifier"["e:exp"]" | op:"concat" "(" e1:exp "," e2:exp  ")" | op:"append" "(" e1:exp "," e2:exp ")";
 
@@ -63,7 +61,9 @@ blk = "{" ds:decSeq cs:cmd_seq "}" ;
 
 cmd_seq = ";"%{ac:atom_cmd}+ ;
 
-atom_cmd = cond | loop | assign | print | call | skip ;
+atom_cmd = ret | cond | loop | assign | print | call | skip ;
+
+ret = op:"return" e:exp ;
 
 skip = "skip" ;
 

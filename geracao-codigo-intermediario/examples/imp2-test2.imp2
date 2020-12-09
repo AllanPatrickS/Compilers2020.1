@@ -1,0 +1,8 @@
+var ano = 0;
+
+def nascimento(idade){
+    return 2020 - idade
+}
+
+ano := nascimento(25);
+print(ano)

@@ -1,0 +1,8 @@
+var op = 0;
+
+def soma5(x) {
+    return x + 5
+}
+
+op := soma5(10);
+print(op)

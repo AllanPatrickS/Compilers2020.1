@@ -163,7 +163,7 @@ class ArrSize(Exp):
 class ArrIndex(Exp):
     def __init__(self, id, e):
         if isinstance(id, Id):
-            if isinstance(e, Exp):
+            if isinstance(e, Exp) or isinstance(e, Call):
                 Exp.__init__(self, id, e)
             else:
                 raise IllFormed(self, e)
@@ -174,7 +174,7 @@ class ArrIndex(Exp):
 class ArrConcat(Exp):
     def __init__(self, arr, e):
         if isinstance(arr, Exp) or isinstance(arr, ArrInt):
-            if isinstance(e, Exp):
+            if isinstance(e, Exp) or isinstance(e, Call):
                 Exp.__init__(self, arr, e)
             else:
                 raise IllFormed(self, e)
@@ -720,11 +720,20 @@ class Id(ArithExp, BoolExp):
     def id(self):
         return self.operand(0)
 
+class Return(Cmd):
+    def __init__(self, e):
+        if isinstance(e, Exp) or isinstance(e, Call):
+            Cmd.__init__(self, e)
+        else:
+            raise IllFormed(self, e)
+
+    def exp(self):
+        return self.operand(0)
 
 class Print(Cmd):
 
     def __init__(self, e):
-        if isinstance(e, Exp):
+        if isinstance(e, Exp) or isinstance(e, Call):
             Cmd.__init__(self, e)
         else:
             raise IllFormed(self, e)
@@ -737,7 +746,7 @@ class ArrAssign(Cmd):
     def __init__(self, id, pos, e):
         if isinstance(id, Id):
             if isinstance(pos, Exp):
-                if isinstance(e, Exp):
+                if isinstance(e, Exp) or isinstance(e, Call):
                     Cmd.__init__(self, id, pos, e)
                 else:
                     raise IllFormed(self, e)
@@ -751,7 +760,7 @@ class Assign(Cmd):
 
     def __init__(self, i, e):
         if isinstance(i, Id):
-            if isinstance(e, Exp):
+            if isinstance(e, Exp) or isinstance(e, Call):
                 Cmd.__init__(self, i, e)
             else:
                 raise IllFormed(self, e)
@@ -840,6 +849,7 @@ class CmdKW:
     LOOP = "#LOOP"
     COND = "#COND"
     PRINT = "#PRINT"
+    RETURN = "#RETURN"
 
 
 class CmdPiAut(ExpPiAut):
@@ -899,6 +909,29 @@ class CmdPiAut(ExpPiAut):
     def __evalPrintKW(self):
         v = self.popVal()
         self.__emmit(v)
+
+    def __evalReturn(self, c):
+        e = c.exp()
+        self.pushCnt(CmdKW.RETURN)
+        self.pushCnt(e)
+
+    def __evalReturnKW(self):
+        v = self.popVal()
+        check = self.popVal()
+        while isinstance(check,list) or isinstance(check,dict):
+            check = self.popVal()
+        env = self.popVal()
+        self.pushVal(env)
+        self.pushVal(check)
+        self.pushVal(v)
+        while True:
+            ctn = self.popCnt()
+            if ctn == DecCmdKW.BLKCMD:
+                break
+        ctn = self.popCnt()
+        while ctn == DecCmdKW.BLKCMD:
+            ctn = self.popCnt()
+        self.pushCnt(ctn)
 
     def __evalAssign(self, c):
         i = c.lvalue()
@@ -1011,6 +1044,10 @@ class CmdPiAut(ExpPiAut):
             self.__evalLoop(c)
         elif c == CmdKW.LOOP:
             self.__evalLoopKW()
+        elif isinstance(c, Return):
+            self.__evalReturn(c)
+        elif c == CmdKW.RETURN:
+            self.__evalReturnKW()
         elif isinstance(c, CSeq):
             self.__evalCSeq(c)
         else:
@@ -1035,7 +1072,7 @@ class Bind(Dec):
                 i = args[0]
                 e = args[1]
                 if isinstance(i, Id):
-                    if isinstance(e, Exp):
+                    if isinstance(e, Exp) or isinstance(e, Call):
                         Dec.__init__(self, i, e)
                     else:
                         raise IllFormed(self, e)
@@ -1053,7 +1090,7 @@ class Bind(Dec):
 
 class Ref(Exp):
     def __init__(self, e):
-        if isinstance(e, Exp) or isinstance(e, ArrInt):
+        if isinstance(e, Exp) or isinstance(e, ArrInt) or isinstance(e, Call):
             Exp.__init__(self, e)
         else:
             raise IllFormed(self, e)
@@ -1064,7 +1101,7 @@ class Ref(Exp):
 
 class Cns(Exp):
     def __init__(self, e):
-        if isinstance(e, Exp):
+        if isinstance(e, Exp) or isinstance(e, Call):
             Exp.__init__(self, e)
         else:
             raise IllFormed(self, e)
@@ -1319,7 +1356,7 @@ class Actuals(list):
     def __init__(self, a):
         if isinstance(a, list):
             for e in a:
-                if not isinstance(e, Exp):
+                if not isinstance(e, Exp) or isinstance(e, Call):
                     raise IllFormed(self, e)
             self.append(a)
         else:
@@ -1695,26 +1732,3 @@ def run(ast, color=True):
     t1 = datetime.datetime.now()
     out = aut.out()
     return (trace, step, out, (t1 - t0))
-
-# if __name__ == '__main__':
-#     # The classic iterative factorial example within a function.
-#     bl1 = Blk(Bind(Id("y"), Ref(Num(1))),
-#             CSeq(Assign(Id("y"), Id("x")),
-#                 Loop(Not(Eq(Id("y"), Num(0))),
-#                     CSeq(Assign(Id("z"), Mul(Id("z"), Id("y"))),
-#                         Assign(Id("y"), Sub(Id("y"), Num(1)))))))
-
-#     abs = Abs(Formals(Id("x")), bl1)
-#     ba = BindAbs(Id("fac"), abs)
-#     ast = Blk(Bind(Id("z"), Ref(Num(1))), Blk(ba, Call(Id("fac"), Actuals(Num(1500)))))
-
-#     try:
-#         (tr, ns, dt) = run(ast)
-#     except Exception as e:
-#         print('Evaluation error: ', e)
-#         exit()
-
-#     print('Last state of the π automaton:')
-#     print(tr[len(tr) - 2])
-#     print('Number of evaluation steps:', ns)
-#     print('Evaluation time:', dt)

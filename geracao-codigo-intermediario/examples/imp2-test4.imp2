@@ -1,0 +1,13 @@
+var i = 0, fib = 1, aux = 1, func = 0;
+
+def fat(x) {
+    while (i < x) {
+        fib := fib * aux;
+        aux := aux + 1;
+        i := i + 1
+    };
+    return fib
+}
+
+func := fat(4);
+print (func)

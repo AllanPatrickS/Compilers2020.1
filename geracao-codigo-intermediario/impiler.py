@@ -163,6 +163,9 @@ class Impiler(object):
         body = self.__makeAbs(ast.f, ast.b)
         return pi.BindAbs(ast.idn, body)
 
+    def ret(self, ast):
+        return pi.Return(ast.e)
+
     def rec(self, ast):
         body = self.__makeAbs(ast.f, ast.b)
         return pi.BindRecAbs(ast.idn, body)
