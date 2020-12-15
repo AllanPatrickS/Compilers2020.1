@@ -3,6 +3,5 @@ Repository for the Compiler course at the UFF Computing Institute from the perio
 
 # How to run 
 + You must have python 2.5+ installed
-+ Install the required dependencies present in the **requirements.txt** running `pip install -r requirements.txt` inside the project folder.
++ Install the required dependencies present in the **requirements.txt** running `pip install -r requirements.txt` inside the project folder
 + You can run each test files in any folder of the project with `python folder-test.py`
-+ You can also edit the values of each function.
